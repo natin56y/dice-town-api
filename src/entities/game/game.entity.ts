@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { BadLuck } from "./badLuck";
+import { GameStatus } from "./enums/game-status.enum";
 import { GeneralStorms } from "./generalStorms";
 import { Player } from "./player";
 import { Property } from "./property";
@@ -35,4 +36,7 @@ export class Game extends BaseEntity {
 
     @Column({ type: 'json'})
     badLuck: BadLuck[]
+    
+    @Column()
+    status: GameStatus
 }

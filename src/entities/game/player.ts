@@ -1,4 +1,5 @@
 import { BadLuck } from "./badLuck"
+import { Dice } from "./dice"
 import { GeneralStorms } from "./generalStorms"
 import { Property } from "./property"
 
@@ -10,6 +11,8 @@ export class Player {
     property: Property[]
     generalStorms: GeneralStorms[]
     badLuck: BadLuck[]
+    dices: Dice[]
+    canThrowDices: boolean
 
     constructor(userId: number){
         this.userId = userId
@@ -19,6 +22,8 @@ export class Player {
         this.property = []
         this.generalStorms = []
         this.badLuck = []
+        this.dices = []
+        this.canThrowDices = true
     }
 
 }

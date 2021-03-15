@@ -10,6 +10,7 @@ import { Player } from 'entities/game/player';
 import { Property } from 'entities/game/property';
 import { GeneralStorms, GeneralStormsAction } from 'entities/game/generalStorms';
 import { BadLuck, BadLuckAction } from 'entities/game/badLuck';
+import { GameStatus } from 'entities/game/enums/game-status.enum';
 
 @Injectable()
 export class GameService extends BaseService<Game>{
@@ -30,6 +31,7 @@ export class GameService extends BaseService<Game>{
         game.property = this.fillProperty()
         game.generalStorms = this.fillGeneralStorms()
         game.badLuck = this.fillBadLuck()
+        game.status = GameStatus.DICE_ROLLING
 
         return this.save(game)
     }
