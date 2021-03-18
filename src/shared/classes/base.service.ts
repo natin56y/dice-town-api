@@ -87,7 +87,7 @@ export class BaseService<T> {
   async delete (where: WhereParams) {
     return await this.getConnection().manager.delete(
       this.TClass,
-      {where}
+      where
     )
   }
 

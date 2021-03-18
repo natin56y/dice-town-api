@@ -27,6 +27,7 @@ export class GameService extends BaseService<Game>{
         game.startTime = new Date()
         game.sherifUserid = null
         game.dollar = 4
+        game.income = 0
         game.nuggets = 30
         game.property = this.fillProperty()
         game.generalStorms = this.fillGeneralStorms()

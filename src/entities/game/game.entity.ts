@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Lobby } from "entities/lobby.entity";
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BadLuck } from "./badLuck";
 import { GameStatus } from "./enums/game-status.enum";
 import { GeneralStorms } from "./generalStorms";
@@ -27,6 +28,9 @@ export class Game extends BaseEntity {
 
     @Column()
     dollar: number
+    
+    @Column({ nullable: true})
+    income: number
 
     @Column({ type: 'json'})
     property: Property[]
@@ -39,4 +43,8 @@ export class Game extends BaseEntity {
     
     @Column()
     status: GameStatus
+
+    @OneToOne(() => Lobby, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    lobby: Lobby
 }

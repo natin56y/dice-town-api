@@ -1,8 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
+import { Dice } from 'entities/game/dice';
 import { Game } from 'entities/game/game.entity';
 import { Lobby } from 'entities/lobby.entity';
 import { ReadyStatus } from 'entities/lobby/ready-status';
+import { GameService } from 'modules/game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
 
@@ -23,7 +25,7 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   
   private logger: Logger = new Logger("LobbyGateway")
 
-  constructor(private lobbyService: LobbyService){
+  constructor(private lobbyService: LobbyService, private gameService: GameService){
 
   }
   
@@ -53,17 +55,72 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   }
 
   @SubscribeMessage('leaveLobbySocket')
-  leaveLobby(client: Socket, body: {lobbyId: string, username: string, uid: string}){
+  async leaveLobby(client: Socket, body: {lobbyId: string, username: string, uid: string}){
     client.leave(body.lobbyId)
     client.emit('leftLobbySocket', body.lobbyId)
     this.server.to(body.lobbyId).emit('userLeftLobby', body.username)
-    this.updateReadyStatus(client, new ReadyStatus(parseInt(body.lobbyId), parseInt(body.uid), false))
+
+    let lobby = await this.lobbyService.findOneById(parseInt(body.lobbyId))
+    if(lobby)
+      this.updateReadyStatus(client, new ReadyStatus(parseInt(body.lobbyId), parseInt(body.uid), false))
   }
   
   @SubscribeMessage('switchStartGame')
   async switchStartGame(client: Socket, body: {lobbyId: string}){
     const lobby = await this.lobbyService.switchStartGame(parseInt(body.lobbyId))
     this.server.to(body.lobbyId).emit('startGameSwitched', lobby)
+  }
+  
+  @SubscribeMessage('setDices')
+  async setDices(client: Socket, body: {dices: Dice[], lobbyId: number, userId: number}){
+    const lobby = await this.lobbyService.findOneLobbyPopulate(body.lobbyId)
+    let game = lobby.game
+
+    // add dices to player
+    game.players.forEach(player => {
+      if(player.userId === body.userId){
+        player.dices.push(...body.dices)
+      }
+    })
+
+    // player pays his move
+    let costs = this.computeCosts(body.dices)
+    game.players.forEach(player => {
+      if(player.userId === body.userId)
+        player.dollar -= costs
+    })
+    game.income += costs
+    
+    // update waiting list
+    game.waitingFor = game.waitingFor.filter(userId => userId !== body.userId)
+
+    // if its the last dice throw of the users
+    if(game.waitingFor.length === 0){
+      game.players.forEach(player => {
+        if(player.dices.length < 5)
+          player.canThrowDices = true
+        else
+          player.canThrowDices = false
+      })
+      game.waitingFor = game.players.map(player => player.userId)
+    }else{
+      game.players.forEach(player => {
+        if(player.userId === body.userId){
+          player.canThrowDices = false
+        }
+      })
+    }
+
+    game = await this.gameService.save(game)
+    
+    this.server.to(body.lobbyId.toString()).emit('updateGame', game)
+    // this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
+  }
+
+  computeCosts(dices: Dice[]): number{
+    if(!dices.length)
+      return 1
+    return dices.length - 1
   }
 }
 

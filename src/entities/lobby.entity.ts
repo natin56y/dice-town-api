@@ -31,7 +31,7 @@ export class Lobby extends BaseEntity {
     @JoinColumn()
     game: Game
 
-    @OneToMany(type => Message, message => message.lobby)
+    @OneToMany(type => Message, message => message.lobby, { onDelete: 'CASCADE' })
     messages: Message[]
 
     @ManyToMany(type => User, user => user.lobbies)

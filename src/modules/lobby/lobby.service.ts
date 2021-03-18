@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Lobby } from '../../entities/lobby.entity';
 import { BaseService } from '../../shared/classes/base.service';
 import * as crypto from "crypto"
@@ -87,13 +87,15 @@ export class LobbyService extends BaseService<Lobby>{
 
     async changeReadyStatus(readyStatus: ReadyStatus): Promise<Lobby> {
         let lobby = await this.findOneLobbyPopulate({id: readyStatus.lobbyId})
-        lobby.readyStatus = lobby.readyStatus.map(item => {
-            if(item.uid == readyStatus.uid){
-                item.isReady = readyStatus.isReady
-            }
-            return item
-        })
-        return await this.save(lobby)
+        if(lobby){
+            lobby.readyStatus = lobby.readyStatus.map(item => {
+                if(item.uid == readyStatus.uid){
+                    item.isReady = readyStatus.isReady
+                }
+                return item
+            })
+            return await this.save(lobby)
+        }
     }
     
     async createReadyStatus(readyStatus: ReadyStatus): Promise<Lobby> {
