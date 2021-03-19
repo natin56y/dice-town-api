@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Dice } from 'entities/game/dice';
+import { GameStatus } from 'entities/game/enums/game-status.enum';
 import { Game } from 'entities/game/game.entity';
 import { Lobby } from 'entities/lobby.entity';
 import { ReadyStatus } from 'entities/lobby/ready-status';
@@ -97,19 +98,33 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     // if its the last dice throw of the users
     if(game.waitingFor.length === 0){
       game.players.forEach(player => {
-        if(player.dices.length < 5)
+
+        // set state of user in new dice throw
+        if(player.dices.length < 5){
+          game.waitingFor.push(player.userId)
           player.canThrowDices = true
-        else
+        }else{
           player.canThrowDices = false
+        }
+
+        //un-hide dices
+        player.dices.forEach(dice => dice.hidden = false)
       })
-      game.waitingFor = game.players.map(player => player.userId)
     }else{
+
+      //set user has rolled his dice
       game.players.forEach(player => {
         if(player.userId === body.userId){
           player.canThrowDices = false
         }
       })
     }
+    
+    
+    //go to next game status if all players have all their dices
+    if(!game.players.find(player => player.dices.length < 5)){
+      game.status = GameStatus.NUGGETS_RESULT
+    }  
 
     game = await this.gameService.save(game)
     
