@@ -6,12 +6,16 @@ import { LobbyService } from '../lobby/lobby.service';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
 
+const { WEBSOCKETS_PORT } = process.env
 
-@WebSocketGateway(3001,{
-  path: '/websockets',
-  serveClient: true,
-  namespace: '/chat'
-})
+@WebSocketGateway(
+  parseInt(WEBSOCKETS_PORT),
+  {
+    path: '/websockets',
+    serveClient: true,
+    namespace: '/chat'
+  }
+)
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
@@ -44,9 +48,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     message.room = socketMessage.room
     message.message = socketMessage.message
 
-    let res = await this.messageService.save(message)
-    this.lobbyService.addMessageToLobby(res, socketMessage.lobbyId)
-    
+    let messageDB = await this.messageService.save(message)
+    this.lobbyService.addMessageToLobby(messageDB, socketMessage.lobbyId)
+  
     this.server.to(message.room).emit('recieveMessage', message)
   }
 

@@ -1,27 +1,50 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { Inventory } from "./inventory";
+import { Lobby } from "entities/lobby.entity";
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BadLuck } from "./badLuck";
+import { GameStatus } from "./enums/game-status.enum";
+import { GeneralStorms } from "./generalStorms";
 import { Player } from "./player";
+import { Property } from "./property";
 
 @Entity({name: 'game'})
 export class Game extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column('boolean')
-    gameStarted: boolean
-
     @Column()
     startTime: Date
 
-    @Column({ type: "text"})
-    waitingFor: string[]
+    @Column({ type: "json"})
+    waitingFor: number[]
+
+    @Column({ nullable: true})
+    sherifUserid: number
+
+    @Column({ type: 'json'})
+    players: Player[]
 
     @Column()
-    sherifUserid: string
+    nuggets: number
 
-    @Column({ type: 'text'})
-    inventory: Inventory
+    @Column()
+    dollar: number
+    
+    @Column({ nullable: true})
+    income: number
 
-    @Column({ type: 'text'})
-    players: Player[]
+    @Column({ type: 'json'})
+    property: Property[]
+
+    @Column({ type: 'json'})
+    generalStorms: GeneralStorms[]
+
+    @Column({ type: 'json'})
+    badLuck: BadLuck[]
+    
+    @Column()
+    status: GameStatus
+
+    @OneToOne(() => Lobby, { onDelete: 'CASCADE' })
+    @JoinColumn()
+    lobby: Lobby
 }

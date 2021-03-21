@@ -1,4 +1,7 @@
-import { Body, Request, Controller, Delete, Get, HttpException, HttpStatus, Post, Put, Query, UseGuards, Param } from '@nestjs/common';
+import { Body, Request, Controller, Delete, Get, HttpException, HttpStatus, Post, Put, Query, UseGuards, Param, forwardRef, Inject } from '@nestjs/common';
+import { MessageService } from 'modules/chat/message.service';
+import { GameService } from 'modules/game/game.service';
+import { Code } from 'typeorm';
 import { Lobby } from '../../entities/lobby.entity';
 import JwtAuthenticationGuard from '../authentication/passport/jwt-authentication.guard';
 import RequestWithUser from '../authentication/requestWithUser.interface';
@@ -8,7 +11,11 @@ import { LobbyService } from './lobby.service';
 @UseGuards(JwtAuthenticationGuard)
 export class LobbyController {
 
-  constructor(private readonly lobbyService: LobbyService) {}
+  constructor(private readonly lobbyService: LobbyService,
+              private readonly gameService: GameService,
+              @Inject(forwardRef(() => MessageService))
+              private readonly messageService: MessageService,
+              ) {}
 
 
   @Get(':code')
@@ -60,15 +67,15 @@ export class LobbyController {
     return await this.lobbyService.removeUserFromLobby(uid, code);
   }
 
-  @Delete(':id')
-  public async delete(@Request() req) {
-    const id = req.params.id;
-    if (!id)
+  @Delete(':code')
+  public async delete(@Request() req, @Param('code') code) {
+    if (!code)
       throw new HttpException(
         'ID parameter is missing',
         HttpStatus.BAD_REQUEST,
       );
-
-    await this.lobbyService.delete(id);
+      
+    await this.lobbyService.getRepository().delete({code})
+    return new HttpException('Deleted', HttpStatus.NO_CONTENT)
   }
 }

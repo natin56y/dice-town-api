@@ -13,7 +13,6 @@ export class AuthenticationService {
   ) {}
 
   public async register(registrationData: RegisterDto) {
-    console.log(registrationData);
     
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
 

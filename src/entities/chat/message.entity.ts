@@ -17,6 +17,6 @@ export class Message extends BaseEntity {
     @Column()
     room: string
 
-    @ManyToOne(type => Lobby, lobby => lobby.messages)
+    @ManyToOne(type => Lobby, lobby => lobby.messages, {onDelete:'CASCADE'})
     lobby: Lobby
 }

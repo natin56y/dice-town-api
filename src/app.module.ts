@@ -13,6 +13,7 @@ import { Lobby } from './entities/lobby.entity';
 import { User } from './entities/user.entity';
 import { Message } from './entities/chat/message.entity';
 import { Game } from './entities/game/game.entity';
+import { GameModule } from './modules/game/game.module';
 
 const {
   POSTGRES_HOST,
@@ -46,7 +47,8 @@ const POSTGRES_DB_CONFIG: PostgresConnectionOptions = {
     TestModule,
     LobbyModule,
     ChatModule,
-    AlertsModule
+    AlertsModule,
+    GameModule
   ],
   controllers: [],
   providers: [],
