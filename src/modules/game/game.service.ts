@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Game } from '../../entities/game/game.entity';
 import { BaseService } from '../../shared/classes/base.service';
-import * as crypto from "crypto"
-import { UsersService } from '../users/users.service';
-import { Message } from '../../entities/chat/message.entity';
-import { ReadyStatus } from '../../entities/lobby/ready-status';
-import { Lobby } from 'entities/lobby.entity';
-import { Player } from 'entities/game/player';
-import { Property } from 'entities/game/property';
-import { GeneralStorms, GeneralStormsAction } from 'entities/game/generalStorms';
-import { BadLuck, BadLuckAction } from 'entities/game/badLuck';
-import { GameStatus } from 'entities/game/enums/game-status.enum';
+import { Lobby } from '../../entities/lobby.entity';
+import { Player } from '../../entities/game/player';
+import { Property } from '../../entities/game/property';
+import { GeneralStorms, GeneralStormsAction } from '../../entities/game/generalStorms';
+import { BadLuck, BadLuckAction } from '../../entities/game/badLuck';
+import { GameStatus } from '../../entities/game/enums/game-status.enum';
+import { GameResults } from '../../entities/game/gameResults';
 
 @Injectable()
 export class GameService extends BaseService<Game>{
@@ -33,6 +30,7 @@ export class GameService extends BaseService<Game>{
         game.generalStorms = this.fillGeneralStorms()
         game.badLuck = this.fillBadLuck()
         game.status = GameStatus.DICE_ROLLING
+        game.results = new GameResults(new Map<GameStatus, number[]>())
 
         return this.save(game)
     }
@@ -77,4 +75,6 @@ export class GameService extends BaseService<Game>{
         }
         return a;
     }
+
+    
 }

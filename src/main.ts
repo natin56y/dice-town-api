@@ -13,7 +13,6 @@ const { PORT } = process.env
 async function bootstrap() {
   const allowedResponseOrigins = ["http://localhost:4200", "http://localhost:3001", "http://ec2-34-240-42-153.eu-west-1.compute.amazonaws.com"]
 
-  const expressApp = express(); 
   const app = await NestFactory.create(AppModule, { cors: {
     "origin": allowedResponseOrigins,
     "methods": "OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -21,7 +20,9 @@ async function bootstrap() {
     "exposedHeaders" : ['Authorization'],
     "optionsSuccessStatus": 204
   }});
-  
+
+  app.setGlobalPrefix('api/v1');
+
   const limiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: 100, // limit each IP to 100 requests per windowMs

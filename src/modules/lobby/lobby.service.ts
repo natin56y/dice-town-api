@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Lobby } from '../../entities/lobby.entity';
 import { BaseService } from '../../shared/classes/base.service';
 import * as crypto from "crypto"
 import { UsersService } from '../users/users.service';
 import { Message } from '../../entities/chat/message.entity';
 import { ReadyStatus } from '../../entities/lobby/ready-status';
-import { GameService } from 'modules/game/game.service';
+import { GameService } from '../game/game.service';
+import { DiceValue } from '../../entities/game/dice-value.enum';
+import { GameStatus } from '../../entities/game/enums/game-status.enum';
+import { Game } from '../../entities/game/game.entity';
 
 @Injectable()
 export class LobbyService extends BaseService<Lobby>{
@@ -122,5 +125,29 @@ export class LobbyService extends BaseService<Lobby>{
 
         lobby.isGameStarted = !lobby.isGameStarted
         return await this.save(lobby)
-      }
+    }
+
+    async startResultSequence(lobbyId: number){
+        const lobby = await this.findOneLobbyPopulate(lobbyId)
+        let game = lobby.game
+    
+        game.results.values.set(GameStatus.NUGGETS_RESULT, this.getUserIdMaxDice(DiceValue.DICE9, game))
+    
+        return game
+        // this.server.to(lobbyId.toString()).emit('updateResults', game)
+    }
+
+    getUserIdMaxDice(diceValue: DiceValue, game: Game): number[]{
+
+        let maxValue = Math.max(...game.players.map(player => player.dices.filter(dice => dice.value === diceValue).length))
+
+        let winners: number[] = []
+        game.players.forEach(player => {
+            if(player.dices.filter(dice => dice.value === diceValue).length === maxValue){
+            winners.push(player.userId)
+            }
+        })
+
+        return winners;
+    }
 }
