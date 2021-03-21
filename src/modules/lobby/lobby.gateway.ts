@@ -1,11 +1,10 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
-import { Dice } from 'entities/game/dice';
-import { GameStatus } from 'entities/game/enums/game-status.enum';
-import { Game } from 'entities/game/game.entity';
-import { Lobby } from 'entities/lobby.entity';
-import { ReadyStatus } from 'entities/lobby/ready-status';
-import { GameService } from 'modules/game/game.service';
+import { Dice } from '../../entities/game/dice';
+import { GameStatus } from '../../entities/game/enums/game-status.enum';
+import { ReadyStatus } from '../../entities/lobby/ready-status';
+import JwtAuthenticationGuard from '../authentication/passport/jwt-authentication.guard';
+import { GameService } from '../game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
 
@@ -19,6 +18,7 @@ const { WEBSOCKETS_PORT } = process.env
     namespace: '/lobby'
   }
 )
+@UseGuards(JwtAuthenticationGuard)
 export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
@@ -67,8 +67,11 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   }
   
   @SubscribeMessage('switchStartGame')
-  async switchStartGame(client: Socket, body: {lobbyId: string}){
+  async switchStartGame(client: Socket, body: {lobbyId: string, isGame: boolean}){
     const lobby = await this.lobbyService.switchStartGame(parseInt(body.lobbyId))
+    if(!body.isGame && lobby.game){
+      this.server.to(body.lobbyId).emit('recieveAlert', 'Game started!')
+    }
     this.server.to(body.lobbyId).emit('startGameSwitched', lobby)
   }
   
@@ -125,12 +128,20 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     if(!game.players.find(player => player.dices.length < 5)){
       game.status = GameStatus.NUGGETS_RESULT
     }  
-
-    game = await this.gameService.save(game)
     
+    
+    game = await this.gameService.save(game)
+
+    // start result sequence
+    if(!game.players.find(player => player.dices.length < 5)){
+      //this.startResultSequence(body.lobbyId)
+    }  
+
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
     // this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
   }
+
+  
 
   computeCosts(dices: Dice[]): number{
     if(!dices.length)

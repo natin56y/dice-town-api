@@ -1,7 +1,8 @@
-import { Lobby } from "entities/lobby.entity";
+import { Lobby } from "../lobby.entity";
 import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BadLuck } from "./badLuck";
 import { GameStatus } from "./enums/game-status.enum";
+import { GameResults } from "./gameResults";
 import { GeneralStorms } from "./generalStorms";
 import { Player } from "./player";
 import { Property } from "./property";
@@ -43,6 +44,9 @@ export class Game extends BaseEntity {
     
     @Column()
     status: GameStatus
+    
+    @Column({ type: 'json'})
+    results: GameResults
 
     @OneToOne(() => Lobby, { onDelete: 'CASCADE' })
     @JoinColumn()

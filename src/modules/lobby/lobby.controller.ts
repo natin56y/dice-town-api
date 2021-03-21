@@ -1,7 +1,6 @@
 import { Body, Request, Controller, Delete, Get, HttpException, HttpStatus, Post, Put, Query, UseGuards, Param, forwardRef, Inject } from '@nestjs/common';
-import { MessageService } from 'modules/chat/message.service';
-import { GameService } from 'modules/game/game.service';
-import { Code } from 'typeorm';
+import { MessageService } from '../chat/message.service';
+import { GameService } from '../game/game.service';
 import { Lobby } from '../../entities/lobby.entity';
 import JwtAuthenticationGuard from '../authentication/passport/jwt-authentication.guard';
 import RequestWithUser from '../authentication/requestWithUser.interface';
@@ -77,5 +76,10 @@ export class LobbyController {
       
     await this.lobbyService.getRepository().delete({code})
     return new HttpException('Deleted', HttpStatus.NO_CONTENT)
+  }
+
+  @Post(':id/test')
+  public async test(@Param('id') id){
+    return await this.lobbyService.startResultSequence(id)
   }
 }
