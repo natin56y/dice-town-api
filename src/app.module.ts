@@ -38,7 +38,7 @@ const POSTGRES_DB_CONFIG: PostgresConnectionOptions = {
 };
 @Module({
   imports: [
-    ServeStaticModule.forRoot({rootPath: join(__dirname, '..', ENV === 'prod' ? './node_modules/dice-town-client/dist/dice-town-client' : './static')}),
+    ServeStaticModule.forRoot({rootPath: join(__dirname, '..', ENV === 'prod' ? './static/prod' : './static/dev')}),
     TypeOrmModule.forRoot(POSTGRES_DB_CONFIG),
     AuthenticationModule,
     UsersModule,
