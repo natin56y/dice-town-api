@@ -5,12 +5,32 @@ import * as express from 'express';
 import * as rateLimit from 'express-rate-limit';
 import * as bodyParser from 'body-parser'
 import * as compression from 'compression';
-//import * as contextService from 'request-context';
+import * as download from 'download-git-repo';
 import * as cors from 'cors';
 
-const { PORT } = process.env
+//import * as contextService from 'request-context';
+
+
+const { PORT, ENV } = process.env
+
+async function downloadClient(){
+  return new Promise((resolve, reject) => {
+    download('anonymax25/dice-town-client#release', 'static/prod', (err) => {
+      if(err)
+        reject()
+      resolve(null)
+    })
+  })
+}
 
 async function bootstrap() {
+
+
+  if(ENV === 'prod'){
+    await downloadClient()
+  }
+  
+
   const allowedResponseOrigins = ["http://localhost:4200", "http://localhost:3001", "http://ec2-34-240-42-153.eu-west-1.compute.amazonaws.com"]
 
   const app = await NestFactory.create(AppModule, { cors: {
