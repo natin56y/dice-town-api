@@ -29,8 +29,9 @@ async function bootstrap() {
 
 
   if(ENV === 'prod'){
+    logger.log("Download start - dice-town-client#release")
     await downloadClient()
-    logger.log("Downloaded - dice-town-client#release")
+    logger.log("Download finished - dice-town-client#release")
   }
   
 
