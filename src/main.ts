@@ -7,9 +7,11 @@ import * as bodyParser from 'body-parser'
 import * as compression from 'compression';
 import * as download from 'download-git-repo';
 import * as cors from 'cors';
+import { Logger } from '@nestjs/common';
 
 //import * as contextService from 'request-context';
 
+const logger = new Logger('Init')
 
 const { PORT, ENV } = process.env
 
@@ -28,6 +30,7 @@ async function bootstrap() {
 
   if(ENV === 'prod'){
     await downloadClient()
+    logger.log("Downloaded - dice-town-client#release")
   }
   
 
