@@ -50,7 +50,7 @@ async function bootstrap() {
     "optionsSuccessStatus": 204
   }});
 
-  app.setGlobalPrefix(`api/v${API_VERSION}`);
+  // app.setGlobalPrefix(`api/v${API_VERSION}`);
 
   const limiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
