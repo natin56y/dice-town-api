@@ -13,7 +13,7 @@ import { Logger } from '@nestjs/common';
 
 const logger = new Logger('Init')
 
-const { PORT, ENV } = process.env
+const { PORT, ENV, API_VERSION } = process.env
 
 async function downloadClient(){
   return new Promise((resolve, reject) => {
@@ -35,7 +35,12 @@ async function bootstrap() {
   }
   
 
-  const allowedResponseOrigins = ["http://localhost:4200", "http://localhost:3001", "http://ec2-34-240-42-153.eu-west-1.compute.amazonaws.com"]
+  const allowedResponseOrigins = [
+    "http://localhost:4200", 
+    "http://localhost:3001", 
+    "http://ec2-34-254-173-6.eu-west-1.compute.amazonaws.com",
+    "http://ec2-34-254-173-6.eu-west-1.compute.amazonaws.com:3000"
+  ]
 
   const app = await NestFactory.create(AppModule, { cors: {
     "origin": allowedResponseOrigins,
@@ -45,7 +50,7 @@ async function bootstrap() {
     "optionsSuccessStatus": 204
   }});
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(`api/v${API_VERSION}`);
 
   const limiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
