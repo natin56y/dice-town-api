@@ -14,13 +14,6 @@ const { WEBSOCKETS_PORT } = process.env
     path: '/websockets',
     serveClient: true,
     namespace: '/chat',
-    transports: [
-      'websocket', 
-      'polling'
-    ],
-    origins: [
-      "*"
-    ]
   }
 )
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
