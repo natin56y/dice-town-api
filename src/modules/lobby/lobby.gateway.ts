@@ -15,7 +15,15 @@ const { WEBSOCKETS_PORT } = process.env
   {
     path: '/websockets',
     serveClient: true,
-    namespace: '/lobby'
+    namespace: '/lobby',
+    transports: [
+      'websocket', 
+      'polling'
+    ],
+    origins: [
+      "http://88.121.191.251:9090/",
+      "http://localhost:4200/"
+    ]
   }
 )
 @UseGuards(JwtAuthenticationGuard)
@@ -27,7 +35,6 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   private logger: Logger = new Logger("LobbyGateway")
 
   constructor(private lobbyService: LobbyService, private gameService: GameService){
-
   }
   
   afterInit(server: Server) {    
