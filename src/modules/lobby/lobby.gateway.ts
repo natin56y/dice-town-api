@@ -18,7 +18,6 @@ const { WEBSOCKETS_PORT } = process.env
     namespace: '/lobby',
   }
 )
-@UseGuards(JwtAuthenticationGuard)
 export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
