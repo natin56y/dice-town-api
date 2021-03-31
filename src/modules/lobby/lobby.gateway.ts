@@ -21,8 +21,7 @@ const { WEBSOCKETS_PORT } = process.env
       'polling'
     ],
     origins: [
-      "http://88.121.191.251:9090/",
-      "http://localhost:4200/"
+      "*",
     ]
   }
 )
