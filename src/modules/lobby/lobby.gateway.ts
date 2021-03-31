@@ -16,13 +16,6 @@ const { WEBSOCKETS_PORT } = process.env
     path: '/websockets',
     serveClient: true,
     namespace: '/lobby',
-    transports: [
-      'websocket', 
-      'polling'
-    ],
-    origins: [
-      "*",
-    ]
   }
 )
 @UseGuards(JwtAuthenticationGuard)
