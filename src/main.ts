@@ -38,8 +38,7 @@ async function bootstrap() {
   const allowedResponseOrigins = [
     "http://localhost:4200", 
     "http://localhost:3001", 
-    "http://ec2-34-254-173-6.eu-west-1.compute.amazonaws.com",
-    "http://ec2-34-254-173-6.eu-west-1.compute.amazonaws.com:3000"
+    "http://88.121.191.251:9090",
   ]
 
   const app = await NestFactory.create(AppModule, { cors: {
