@@ -8,16 +8,9 @@ import { GameService } from '../game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
 
-const { WEBSOCKETS_PORT } = process.env
+const { WEBSOCKETS_PORT_LOBBY } = process.env
 
-@WebSocketGateway(
-  parseInt(WEBSOCKETS_PORT),
-  {
-    path: '/websockets',
-    serveClient: true,
-    namespace: '/lobby',
-  }
-)
+@WebSocketGateway(parseInt(WEBSOCKETS_PORT_LOBBY))
 export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
@@ -33,11 +26,12 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   }
 
   handleDisconnect(client: Socket) {
-    //this.logger.log("client disconnected!", client.id)
+    this.logger.log("client disconnected! " + client.id)
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    //this.logger.log("client connected!", client.id)
+    this.logger.log("client connected! " + client.id)
+    client.emit('connect2')
   }
 
   @SubscribeMessage('updateReadyStatus')
@@ -46,8 +40,15 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     this.server.to(lobby.id.toString()).emit('updatedReadyStatus', lobby.readyStatus)
   }
 
+  @SubscribeMessage('test')
+  test(){
+    console.log("tessst");
+  }
+
   @SubscribeMessage('joinLobbySocket')
   joinLobby(client: Socket, body: {lobbyId: string, username: string, uid: string}){
+    console.log('emiting');
+    
     this.server.to(body.lobbyId).emit('userJoinedLobby', body.username)
     client.join(body.lobbyId)
     client.emit('joinedLobbySocket', body.lobbyId)

@@ -7,13 +7,13 @@ import { LobbyModule } from './modules/lobby/lobby.module';
 import { join } from 'path';
 import { ChatModule } from './modules/chat/chat.module';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
-import { AlertsModule } from './modules/alerts/alerts.module';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { Lobby } from './entities/lobby.entity';
 import { User } from './entities/user.entity';
 import { Message } from './entities/chat/message.entity';
 import { Game } from './entities/game/game.entity';
 import { GameModule } from './modules/game/game.module';
+import { EventsModule } from './modules/events/events.module';
 
 const {
   POSTGRES_HOST,
@@ -45,8 +45,8 @@ const POSTGRES_DB_CONFIG: PostgresConnectionOptions = {
     TestModule,
     LobbyModule,
     ChatModule,
-    AlertsModule,
-    GameModule
+    GameModule,
+    EventsModule
   ],
   controllers: [],
   providers: [],

@@ -6,16 +6,9 @@ import { LobbyService } from '../lobby/lobby.service';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
 
-const { WEBSOCKETS_PORT } = process.env
+const { WEBSOCKETS_PORT_CHAT } = process.env
 
-@WebSocketGateway(
-  parseInt(WEBSOCKETS_PORT),
-  {
-    path: '/websockets',
-    serveClient: true,
-    namespace: '/chat',
-  }
-)
+@WebSocketGateway(parseInt(WEBSOCKETS_PORT_CHAT))
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
@@ -33,11 +26,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleDisconnect(client: Socket) {
-    //this.logger.log("client disconnected!", client.id)
+    this.logger.log("client disconnected! " + client.id)
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    //this.logger.log("client connected!", client.id)
+    this.logger.log("client connected! " + client.id)
   }
 
   @SubscribeMessage('chatToRoom')
