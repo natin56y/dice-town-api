@@ -22,7 +22,7 @@ export class GameService extends BaseService<Game>{
         game.players = lobby.users.map(user => new Player(user.id))
         game.waitingFor = lobby.users.map(user => user.id)
         game.startTime = new Date()
-        game.sherifUserid = null
+        game.sherifUserid = lobby.users[this.getRandomIntInclusive(0, lobby.users.length-1)].id
         game.dollar = 4
         game.income = 0
         game.nuggets = 30
@@ -75,6 +75,12 @@ export class GameService extends BaseService<Game>{
         }
         return a;
     }
+
+    getRandomIntInclusive(min: number, max: number): number{
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
 
     
 }
