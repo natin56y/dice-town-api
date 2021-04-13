@@ -1,9 +1,8 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Dice } from '../../entities/game/dice';
 import { GameStatus } from '../../entities/game/enums/game-status.enum';
 import { ReadyStatus } from '../../entities/lobby/ready-status';
-import JwtAuthenticationGuard from '../authentication/passport/jwt-authentication.guard';
 import { GameService } from '../game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
@@ -31,7 +30,6 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log("client connected! " + client.id)
-    client.emit('connect2')
   }
 
   @SubscribeMessage('updateReadyStatus')
@@ -40,15 +38,8 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     this.server.to(lobby.id.toString()).emit('updatedReadyStatus', lobby.readyStatus)
   }
 
-  @SubscribeMessage('test')
-  test(){
-    console.log("tessst");
-  }
-
   @SubscribeMessage('joinLobbySocket')
   joinLobby(client: Socket, body: {lobbyId: string, username: string, uid: string}){
-    console.log('emiting');
-    
     this.server.to(body.lobbyId).emit('userJoinedLobby', body.username)
     client.join(body.lobbyId)
     client.emit('joinedLobbySocket', body.lobbyId)
@@ -137,7 +128,7 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     }  
 
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
-    // this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
+    this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
   }
 
   
