@@ -92,8 +92,6 @@ export class GameService extends BaseService<Game>{
                 if(dice.value === value)
                     playerMax++;
             }
-            console.log(player.userId, value, playerMax);
-            
 
             if(playerMax > max){
                 max = playerMax
