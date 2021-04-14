@@ -36,7 +36,8 @@ async function bootstrap() {
   
 
   const allowedResponseOrigins = [
-    "http://localhost:4200", 
+    "http://localhost:4200",
+    "http://localhost:3000", 
     "http://localhost:3001", 
     "http://88.121.191.251:9090",
   ]
@@ -51,24 +52,24 @@ async function bootstrap() {
 
   // app.setGlobalPrefix(`api/v${API_VERSION}`);
 
-  const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 100, // limit each IP to 100 requests per windowMs
-    handler: (req, res) => {
-      console.log(`To many requests from ${req.ip} (Method: ${req.method}, URL: ${req.url})`);
-      res.status(429).send('Too many requests');
-      console.log(`${req.method} ${req.url}\x1b[31m 429\x1b[0m - - ${res._contentLength}`)
-    }
-  })
+  // const limiter = rateLimit({
+  //   windowMs: 1 * 60 * 1000, // 1 minute
+  //   max: 100, // limit each IP to 100 requests per windowMs
+  //   handler: (req, res) => {
+  //     console.log(`To many requests from ${req.ip} (Method: ${req.method}, URL: ${req.url})`);
+  //     res.status(429).send('Too many requests');
+  //     console.log(`${req.method} ${req.url}\x1b[31m 429\x1b[0m - - ${res._contentLength}`)
+  //   }
+  // })
   app.enableCors({
     credentials: true,
     origin: allowedResponseOrigins
   });
-  app.use(compression());
+  // app.use(compression());
   //app.use(contextService.middleware('request'));
-  app.use(limiter)
-  app.use(bodyParser.json({ limit: '20mb' }));
-  app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
+  // app.use(limiter)
+  // app.use(bodyParser.json({ limit: '20mb' }));
+  // app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 
   await app.listen(PORT);
 }

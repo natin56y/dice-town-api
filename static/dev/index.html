@@ -5,6 +5,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+
+    <script src="socket.io.js"></script>
+    <script>
+      const socket = io.connect('http://localhost:3003');
+      socket.on('connect', function() {
+        console.log('Connected');
+
+        socket.emit('events', { test: 'test' });
+        socket.emit('identity', 0, response =>
+          console.log('Identity:', response),
+        );
+      });
+      socket.on('connected', function(data) {
+        console.log('connected', data);
+      });
+      socket.on('events', function(data) {
+        console.log('event', data);
+      });
+      socket.on('exception', function(data) {
+        console.log('event', data);
+      });
+      socket.on('disconnect', function() {
+        console.log('Disconnected');
+      });
+
+
+      const socket2 = io.connect('http://localhost:3001');
+      socket2.on('connect', function() {
+        console.log('Connected chat');
+
+        socket2.emit('events', { test: 'test' });
+      });
+      socket2.on('connected', function(data) {
+        console.log('connected', data);
+      });
+      socket2.on('events', function(data) {
+        console.log('event', data);
+      });
+      socket2.on('exception', function(data) {
+        console.log('event', data);
+      });
+      socket2.on('disconnect', function() {
+        console.log('Disconnected');
+      });
+
+      const socket3 = io.connect('http://localhost:3002');
+      socket3.on('connect', function() {
+        console.log('Connected lobby');
+
+        socket3.emit('events', { test: 'test' });
+      });
+    </script>
 </head>
 <body>
     <h1>Dev page</h1>

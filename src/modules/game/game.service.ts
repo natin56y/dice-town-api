@@ -8,6 +8,7 @@ import { GeneralStorms, GeneralStormsAction } from '../../entities/game/generalS
 import { BadLuck, BadLuckAction } from '../../entities/game/badLuck';
 import { GameStatus } from '../../entities/game/enums/game-status.enum';
 import { GameResults } from '../../entities/game/gameResults';
+import { DiceValue } from '../../entities/game/dice-value.enum';
 
 @Injectable()
 export class GameService extends BaseService<Game>{
@@ -22,7 +23,7 @@ export class GameService extends BaseService<Game>{
         game.players = lobby.users.map(user => new Player(user.id))
         game.waitingFor = lobby.users.map(user => user.id)
         game.startTime = new Date()
-        game.sherifUserid = null
+        game.sherifUserid = lobby.users[this.getRandomIntInclusive(0, lobby.users.length-1)].id
         game.dollar = 4
         game.income = 0
         game.nuggets = 30
@@ -30,7 +31,7 @@ export class GameService extends BaseService<Game>{
         game.generalStorms = this.fillGeneralStorms()
         game.badLuck = this.fillBadLuck()
         game.status = GameStatus.DICE_ROLLING
-        game.results = new GameResults(new Map<GameStatus, number[]>())
+        game.results = new GameResults()
 
         return this.save(game)
     }
@@ -74,6 +75,32 @@ export class GameService extends BaseService<Game>{
             a[j] = x;
         }
         return a;
+    }
+
+    getRandomIntInclusive(min: number, max: number): number{
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    getWinners(value: DiceValue, game: Game){
+        let max = 0
+        let playerIds: number[] = []
+        for (const player of game.players) {
+            let playerMax = 0
+            for (const dice of player.dices) {
+                if(dice.value === value)
+                    playerMax++;
+            }
+
+            if(playerMax > max){
+                max = playerMax
+                playerIds = [player.userId]
+            }else if(playerMax === max){
+                playerIds.push(player.userId)
+            }
+        }
+        return playerIds
     }
 
     

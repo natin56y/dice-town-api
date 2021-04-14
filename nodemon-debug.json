@@ -1,5 +1,5 @@
 {
-  "watch": ["src", "static"],
+  "watch": ["src", "static", "properties"],
   "ext": ["ts", "html", "css"],
   "ignore": ["src/**/*.spec.ts"],
   "exec": "node --inspect-brk -r ts-node/register src/main.ts"
