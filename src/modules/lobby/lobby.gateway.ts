@@ -6,6 +6,7 @@ import { ReadyStatus } from '../../entities/lobby/ready-status';
 import { GameService } from '../game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
+import { DiceValue } from '../../entities/game/dice-value.enum';
 
 const { WEBSOCKETS_PORT_LOBBY } = process.env
 
@@ -117,6 +118,14 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     //go to next game status if all players have all their dices
     if(!game.players.find(player => player.dices.length < 5)){
       game.status = GameStatus.NUGGETS_RESULT
+      
+      //compute winners of categories
+      game.results.dice9 = this.gameService.getWinners(DiceValue.DICE9, game)
+      game.results.dice10 =this.gameService.getWinners(DiceValue.DICE10, game)
+      game.results.diceStore = this.gameService.getWinners(DiceValue.DICE11, game)
+      game.results.diceSaloon = this.gameService.getWinners(DiceValue.DICE12, game)
+      game.results.diceSherif = this.gameService.getWinners(DiceValue.DICE13, game)
+      game.results.diceAce = this.gameService.getWinners(DiceValue.DICE14, game)
     }  
     
     
@@ -128,7 +137,7 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     }  
 
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
-    this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
+    //this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
   }
 
   
