@@ -7,6 +7,7 @@ import { GameService } from '../game/game.service';
 import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
 import { DiceValue } from '../../entities/game/dice-value.enum';
+import { Result } from '../../entities/game/gameResults';
 
 const { WEBSOCKETS_PORT_LOBBY } = process.env
 
@@ -68,7 +69,7 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   
   @SubscribeMessage('setDices')
   async setDices(client: Socket, body: {dices: Dice[], lobbyId: number, userId: number}){
-    const lobby = await this.lobbyService.findOneLobbyPopulate(body.lobbyId)
+    const lobby = await this.lobbyService.findOneLobbyPopulate({id: body.lobbyId})
     let game = lobby.game
 
     // add dices to player
@@ -120,21 +121,17 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
       game.status = GameStatus.NUGGETS_RESULT
       
       //compute winners of categories
-      game.results.dice9 = this.gameService.getWinners(DiceValue.DICE9, game)
-      game.results.dice10 =this.gameService.getWinners(DiceValue.DICE10, game)
-      game.results.diceStore = this.gameService.getWinners(DiceValue.DICE11, game)
-      game.results.diceSaloon = this.gameService.getWinners(DiceValue.DICE12, game)
-      game.results.diceSherif = this.gameService.getWinners(DiceValue.DICE13, game)
-      game.results.diceAce = this.gameService.getWinners(DiceValue.DICE14, game)
+      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false)
+      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true)
+      game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true)
+      game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true)
+      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true)
+      game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true)
     }  
     
+    console.log("saving game: " + game.id);
     
     game = await this.gameService.save(game)
-
-    // start result sequence
-    if(!game.players.find(player => player.dices.length < 5)){
-      //this.startResultSequence(body.lobbyId)
-    }  
 
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
     //this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)

@@ -131,7 +131,7 @@ export class LobbyService extends BaseService<Lobby>{
         const lobby = await this.findOneLobbyPopulate(lobbyId)
         let game = lobby.game
     
-        game.results.values.set(GameStatus.NUGGETS_RESULT, this.getUserIdMaxDice(DiceValue.DICE9, game))
+        //game.results.values.set(GameStatus.NUGGETS_RESULT, this.getUserIdMaxDice(DiceValue.DICE9, game))
     
         return game
         // this.server.to(lobbyId.toString()).emit('updateResults', game)
