@@ -1,11 +1,15 @@
 
 export class GameResults {
-    dice9: number[]
-    dice10: number[]
-    diceStore: number[]
-    diceSaloon: number[]
-    diceSherif: number[]
-    diceAce: number[]
 
-    constructor() {}
+    dice9: Result
+    dice10: Result
+    diceStore: Result
+    diceSaloon: Result
+    diceSherif: Result
+    diceAce: Result
+
+}
+
+export class Result {
+    constructor(public ids: number[], public isHidden: boolean){}
 }
