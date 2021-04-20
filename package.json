@@ -12,7 +12,7 @@
     "start:debug": "nodemon --config nodemon-debug.json",
     "start:prod": "rimraf dist && tsc && ENV=prod node dist/main.js",
     "start:hmr": "node dist/server",
-    "postinstall": "npm run prestart:prod",
+    "postinstall": "npm run start:prod",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
     "test:watch": "jest --watch",
