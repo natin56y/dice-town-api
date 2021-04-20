@@ -7,7 +7,7 @@ export class BadLuck extends Card {
         this.action = action
     }
 }
-
+ 
 export enum BadLuckAction {
     GET_NUGGET_FROM_ALL_PLAYERS
 }
