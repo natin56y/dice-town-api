@@ -40,11 +40,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     message.user = socketMessage.user
     message.room = socketMessage.room
     message.message = socketMessage.message
+    
+    this.server.to(message.room).emit('recieveMessage', message)
 
     let messageDB = await this.messageService.save(message)
     this.lobbyService.addMessageToLobby(messageDB, socketMessage.lobbyId)
   
-    this.server.to(message.room).emit('recieveMessage', message)
   }
 
   @SubscribeMessage('joinRoom')
