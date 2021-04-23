@@ -36,15 +36,17 @@ async function bootstrap() {
   
 
   const allowedResponseOrigins = [
-    // "http://localhost:4200",
-    // "http://localhost:3000", 
-    // "http://localhost:3001", 
-    // "https://www.dicetown.fr",
-    // "http://www.dicetown.fr",
+    "http://localhost:4200",
+    "http://localhost:3000", 
+    "http://localhost:3001", 
+    "https://www.dicetown.fr",
+    "http://www.dicetown.fr",
+    "https://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
+    "http://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
   ]
 
   const app = await NestFactory.create(AppModule, { cors: {
-    "origin": "*",
+    "origin": allowedResponseOrigins,
     "methods": "OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE",
     "allowedHeaders" : ['*'],
     "exposedHeaders" : ['Authorization'],
@@ -64,11 +66,11 @@ async function bootstrap() {
   // })
   app.enableCors({
     credentials: true,
-    origin: "*"
+    origin: allowedResponseOrigins
   });
 
   app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', allowedResponseOrigins);
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
     next();
