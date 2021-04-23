@@ -62,6 +62,17 @@ async function bootstrap() {
   //     console.log(`${req.method} ${req.url}\x1b[31m 429\x1b[0m - - ${res._contentLength}`)
   //   }
   // })
+  app.enableCors({
+    credentials: true,
+    origin: "*"
+  });
+
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    next();
+  });
   
   
   // app.use(compression());
