@@ -45,13 +45,7 @@ async function bootstrap() {
     "http://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
   ]
 
-  const app = await NestFactory.create(AppModule, { cors: {
-    "origin": allowedResponseOrigins,
-    "methods": "OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE",
-    "allowedHeaders" : ['*'],
-    "exposedHeaders" : ['Authorization'],
-    "optionsSuccessStatus": 204
-  }});
+  const app = await NestFactory.create(AppModule);
 
   // app.setGlobalPrefix(`api/v${API_VERSION}`);
 
@@ -65,15 +59,11 @@ async function bootstrap() {
   //   }
   // })
   app.enableCors({
-    origin: allowedResponseOrigins
-  });
-
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', allowedResponseOrigins);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    next();
-  });
+    origin: allowedResponseOrigins,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    optionsSuccessStatus: 200,
+    allowedHeaders: '*',
+  })
   
   
   // app.use(compression());
