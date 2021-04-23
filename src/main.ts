@@ -36,15 +36,15 @@ async function bootstrap() {
   
 
   const allowedResponseOrigins = [
-    "http://localhost:4200",
-    "http://localhost:3000", 
-    "http://localhost:3001", 
-    "https://www.dicetown.fr",
-    "http://www.dicetown.fr",
+    // "http://localhost:4200",
+    // "http://localhost:3000", 
+    // "http://localhost:3001", 
+    // "https://www.dicetown.fr",
+    // "http://www.dicetown.fr",
   ]
 
   const app = await NestFactory.create(AppModule, { cors: {
-    "origin": allowedResponseOrigins,
+    "origin": "*",
     "methods": "OPTIONS,GET,HEAD,PUT,PATCH,POST,DELETE",
     "allowedHeaders" : ['*'],
     "exposedHeaders" : ['Authorization'],
@@ -62,10 +62,8 @@ async function bootstrap() {
   //     console.log(`${req.method} ${req.url}\x1b[31m 429\x1b[0m - - ${res._contentLength}`)
   //   }
   // })
-  app.enableCors({
-    credentials: true,
-    origin: allowedResponseOrigins
-  });
+  
+  
   // app.use(compression());
   //app.use(contextService.middleware('request'));
   // app.use(limiter)
