@@ -65,7 +65,6 @@ async function bootstrap() {
   //   }
   // })
   app.enableCors({
-    credentials: true,
     origin: allowedResponseOrigins
   });
 
