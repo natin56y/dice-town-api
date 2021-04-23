@@ -121,23 +121,41 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
       game.status = GameStatus.NUGGETS_RESULT
       
       //compute winners of categories
-      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false)
-      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true)
-      game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true)
-      game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true)
-      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true)
-      game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true)
-    }  
-    
-    console.log("saving game: " + game.id);
-    
-    game = await this.gameService.save(game)
+      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false, "dice9")
+      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true, "dice10")
+      game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true, "diceStore")
+      game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true, "diceSaloon")
+      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true, "diceSherif")
+      game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true, "diceAce")
 
+      game.players.forEach( player => {
+        player.dices.sort((a,b) => {
+          if(a.value > b.value)
+            return 1
+          if(a.value < b.value)
+            return -1
+          return 1
+        })
+      })
+    }  
+
+    game = await this.gameService.save(game)
+    
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
-    //this.server.to(body.lobbyId.toString()).emit('newWaitingFor', game.waitingFor)
   }
 
-  
+  @SubscribeMessage('chooseWinner')
+  async chooseWinner(client: Socket, body: {lobbyId: number, gameId: number, result: Result}){
+    
+    let game = await this.gameService.findOneById(body.gameId)
+
+    game.results[body.result.dice].ids = body.result.ids   
+    game.results[body.result.dice].isSherifResolve = true   
+
+    game = await this.gameService.save(game)
+
+    this.server.to(body.lobbyId.toString()).emit('updateResults', game.results)
+  }
 
   computeCosts(dices: Dice[]): number{
     if(!dices.length)
