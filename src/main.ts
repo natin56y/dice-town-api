@@ -39,7 +39,8 @@ async function bootstrap() {
     "http://localhost:4200",
     "http://localhost:3000", 
     "http://localhost:3001", 
-    "http://88.121.191.251:9090",
+    "https://www.dicetown.fr",
+    "http://www.dicetown.fr",
   ]
 
   const app = await NestFactory.create(AppModule, { cors: {
