@@ -35,6 +35,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.logger.log("client connected! " + client.id)
   }
 
+  @SubscribeMessage('ping')
+  ping(client: Socket, msg: string){
+    client.emit('pong')
+  }
+
   @SubscribeMessage('chatToRoom')
   async handleMessageAll(client: Socket, socketMessage: SocketMessage) {
 

@@ -36,6 +36,11 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     this.logger.log("client connected! " + client.id)
   }
 
+  @SubscribeMessage('ping')
+  ping(client: Socket, msg: string){
+    client.emit('pong')
+  }
+
   @SubscribeMessage('updateReadyStatus')
   async updateReadyStatus(client: Socket, readyStatus: ReadyStatus) {
     const lobby = await this.lobbyService.changeReadyStatus(readyStatus)
