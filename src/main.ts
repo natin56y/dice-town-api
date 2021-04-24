@@ -39,9 +39,9 @@ async function bootstrap() {
     "http://localhost:4200",
     "http://localhost:3000", 
     "http://localhost:3001", 
-    "https://www.dicetown.fr",
     "http://www.dicetown.fr",
-    "https://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
+    "http://www.dicetown.fr",
+    "http://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
     "http://ec2-34-244-165-149.eu-west-1.compute.amazonaws.com",
   ]
 
