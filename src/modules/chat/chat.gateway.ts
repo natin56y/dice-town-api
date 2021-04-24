@@ -8,7 +8,9 @@ import { MessageService } from './message.service';
 
 const { WEBSOCKETS_PORT_CHAT } = process.env
 
-@WebSocketGateway(parseInt(WEBSOCKETS_PORT_CHAT))
+@WebSocketGateway(parseInt(WEBSOCKETS_PORT_CHAT), {
+  path: '/chatSocket'
+})
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()

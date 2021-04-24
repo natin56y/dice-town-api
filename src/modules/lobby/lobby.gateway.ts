@@ -11,7 +11,9 @@ import { Result } from '../../entities/game/gameResults';
 
 const { WEBSOCKETS_PORT_LOBBY } = process.env
 
-@WebSocketGateway(parseInt(WEBSOCKETS_PORT_LOBBY))
+@WebSocketGateway(parseInt(WEBSOCKETS_PORT_LOBBY), {
+  path: '/lobbySocket'
+})
 export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   
   @WebSocketServer()
