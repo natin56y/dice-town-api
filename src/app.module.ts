@@ -13,6 +13,7 @@ import { User } from './entities/user.entity';
 import { Message } from './entities/chat/message.entity';
 import { Game } from './entities/game/game.entity';
 import { GameModule } from './modules/game/game.module';
+import { RootModule } from './modules/root/root.module';
 
 const {
   POSTGRES_HOST,
@@ -37,6 +38,7 @@ const POSTGRES_DB_CONFIG: PostgresConnectionOptions = {
 };
 @Module({
   imports: [
+    RootModule,
     ServeStaticModule.forRoot({rootPath: join(__dirname, '..', ENV === 'prod' ? './static/prod' : './static/dev')}),
     TypeOrmModule.forRoot(POSTGRES_DB_CONFIG),
     AuthenticationModule,
