@@ -8,6 +8,7 @@ import { Server, Socket } from 'socket.io';
 import { LobbyService } from './lobby.service';
 import { DiceValue } from '../../entities/game/dice-value.enum';
 import { Result } from '../../entities/game/gameResults';
+import { GameEvent } from 'entities/lobby/game-event';
 
 const { WEBSOCKETS_PORT_LOBBY } = process.env
 
@@ -42,8 +43,8 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 
   @SubscribeMessage('updateReadyStatus')
   async updateReadyStatus(client: Socket, readyStatus: ReadyStatus) {
-    const lobby = await this.lobbyService.changeReadyStatus(readyStatus)
-    this.server.to(lobby.id.toString()).emit('updatedReadyStatus', lobby.readyStatus)
+    this.server.to(readyStatus.lobbyId.toString()).emit('updatedReadyStatus', readyStatus)
+    await this.lobbyService.changeReadyStatus(readyStatus)
   }
 
   @SubscribeMessage('joinLobbySocket')
@@ -67,9 +68,7 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   @SubscribeMessage('switchStartGame')
   async switchStartGame(client: Socket, body: {lobbyId: string, isGame: boolean}){
     const lobby = await this.lobbyService.switchStartGame(parseInt(body.lobbyId))
-    if(!body.isGame && lobby.game){
-      this.server.to(body.lobbyId).emit('recieveAlert', 'Game started!')
-    }
+  
     this.server.to(body.lobbyId).emit('startGameSwitched', lobby)
   }
   
@@ -125,13 +124,15 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     //go to next game status if all players have all their dices
     if(!game.players.find(player => player.dices.length < 5)){
       game.status = GameStatus.NUGGETS_RESULT
+      this.server.to(`${body.lobbyId}`).emit('event', new GameEvent('Round results'))
+      lobby.events.push(new GameEvent('Round results'))
       
       //compute winners of categories
-      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false, "dice9")
-      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true, "dice10")
+      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false, "dice9", false, true)
+      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true, "dice10", false, true)
       game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true, "diceStore")
       game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true, "diceSaloon")
-      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true, "diceSherif")
+      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true, "diceSherif", false, true)
       game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true, "diceAce")
 
       game.players.forEach( player => {
@@ -145,9 +146,11 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
       })
     }  
 
-    game = await this.gameService.save(game)
-    
     this.server.to(body.lobbyId.toString()).emit('updateGame', game)
+    
+    await this.gameService.save(game)
+    await this.lobbyService.save(lobby)
+    
   }
 
   @SubscribeMessage('chooseWinner')
@@ -158,9 +161,62 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     game.results[body.result.dice].ids = body.result.ids   
     game.results[body.result.dice].isSherifResolve = true   
 
-    game = await this.gameService.save(game)
 
     this.server.to(body.lobbyId.toString()).emit('updateResults', game.results)
+    
+    game = await this.gameService.save(game)
+
+  }
+  
+  @SubscribeMessage('redeemResult')
+  async redeemResult(client: Socket, body: {lobbyId: number, gameId: number, result: Result}){
+    
+    let game = await this.gameService.findOneById(body.gameId)
+
+    game.results[body.result.dice].isRedeemed = true
+
+    switch(body.result.dice){
+      case "dice9":
+        const wonNuggets: number = this.lobbyService.countPlayerDice(game, 9, body.result.ids[0])
+        game.players[game.players.findIndex(p => p.userId === body.result.ids[0])].nuggets += wonNuggets
+        game.nuggets -= wonNuggets
+        game.results.dice10.isHidden = false
+        game.status = GameStatus.BANK_RESULT
+        break;
+      case "dice10":
+        game.players[game.players.findIndex(p => p.userId === body.result.ids[0])].dollar += game.dollar
+        game.dollar = game.income
+        game.income = 0
+        game.results.diceStore.isHidden = false
+        game.status = GameStatus.GENERAL_STORMS_RESULT
+
+        break;
+      case "diceStore":
+
+        game.results.diceSaloon.isHidden = false
+        game.status = GameStatus.SALOON_RESULT
+
+        break;
+      case "diceSaloon":
+
+        game.results.diceSherif.isHidden = false
+        game.status = GameStatus.SHERIF_RESULT
+
+        break;
+      case "diceSherif":
+
+        game.status = GameStatus.PROPERTY_RESULT
+
+        break;
+      case "diceAce":
+
+        break;
+    }
+
+    this.server.to(body.lobbyId.toString()).emit('updateResults', game.results)
+    
+    game = await this.gameService.save(game)
+
   }
 
   computeCosts(dices: Dice[]): number{

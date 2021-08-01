@@ -51,9 +51,21 @@ export class GameService extends BaseService<Game>{
     fillGeneralStorms() {
         let generalStorms: GeneralStorms[] = []
 
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_1_POINTS, "Get 1 points", true))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_2_POINTS, "Get 2 points", true))
         generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_3_POINTS, "Get 3 points", true))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_4_POINTS, "Get 4 points", true))
         generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_5_POINTS, "Get 5 points", true))
         generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_8_POINTS, "Get 8 points", true))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.TWO_SALOON, "Get 8 points", true, GameStatus.SALOON_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.CANCEL_CARD, "Cancel a card played by another player", true, GameStatus.SALOON_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.ONE_MOR_PROPERTY, "Get one more property from hidden stack", true, GameStatus.PROPERTY_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.DOUBLE_NUGGETS, "Get double nuggets", true, GameStatus.NUGGETS_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.OLD_SHERIF_STAY, "Old sherif stays sherif", true, GameStatus.SHERIF_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.HALF_OF_BANK, "Get half of the bank heist", true, GameStatus.BANK_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.DO_BAD_LUCK, "Do bad luck", true, GameStatus.BAD_LUCK_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.DOUBLE_STORE, "Pick store cards twice", true, GameStatus.GENERAL_STORMS_RESULT))
+        generalStorms.push(new GeneralStorms(GeneralStormsAction.STEAL_4_DOLLAR, "Steal 4$ from any player", false))
         
         return this.shuffle(generalStorms)
     }

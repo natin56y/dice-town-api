@@ -7,8 +7,8 @@ import { Message } from '../../entities/chat/message.entity';
 import { ReadyStatus } from '../../entities/lobby/ready-status';
 import { GameService } from '../game/game.service';
 import { DiceValue } from '../../entities/game/dice-value.enum';
-import { GameStatus } from '../../entities/game/enums/game-status.enum';
 import { Game } from '../../entities/game/game.entity';
+import { GameEvent } from 'entities/lobby/game-event';
 
 @Injectable()
 export class LobbyService extends BaseService<Lobby>{
@@ -30,6 +30,7 @@ export class LobbyService extends BaseService<Lobby>{
         lobby.users = [user]
         lobby.messages = []
         lobby.readyStatus = []
+        lobby.events = [new GameEvent("Lobby created")]
 
         const lobbyDB = await this.save(lobby)
         return await this.createReadyStatus(new ReadyStatus(lobbyDB.id, ownerId, false))
@@ -40,7 +41,7 @@ export class LobbyService extends BaseService<Lobby>{
         let user = await this.usersService.findOne({id: userId})
         lobby.users.push(user)
         await this.save(lobby)
-        return await this.createReadyStatus(new ReadyStatus(lobby.id, userId, false))
+        return await this.createReadyStatus(new ReadyStatus(lobby.id, +userId, false))
     }
     
     async addMessageToLobby(message: Message, lobbyId: number){
@@ -103,7 +104,7 @@ export class LobbyService extends BaseService<Lobby>{
     
     async createReadyStatus(readyStatus: ReadyStatus): Promise<Lobby> {
         let lobby = await this.findOneLobbyPopulate({id: readyStatus.lobbyId})
-        lobby.readyStatus.push(new ReadyStatus(readyStatus.lobbyId, readyStatus.uid, readyStatus.isReady))
+        lobby.readyStatus.push(new ReadyStatus(readyStatus.lobbyId, +readyStatus.uid, readyStatus.isReady))
         return await this.save(lobby)
     }
 
@@ -113,6 +114,7 @@ export class LobbyService extends BaseService<Lobby>{
         //create game if starting
         if(!lobby.isGameStarted && !lobby.game){
             lobby.game = await this.gameService.create(lobby)
+            lobby.events.push(new GameEvent("Game started"))
         }
 
         //pausing game, re-set isReady
@@ -138,7 +140,6 @@ export class LobbyService extends BaseService<Lobby>{
     }
 
     getUserIdMaxDice(diceValue: DiceValue, game: Game): number[]{
-
         let maxValue = Math.max(...game.players.map(player => player.dices.filter(dice => dice.value === diceValue).length))
 
         let winners: number[] = []
@@ -149,5 +150,9 @@ export class LobbyService extends BaseService<Lobby>{
         })
 
         return winners;
+    }
+
+    countPlayerDice(game: Game, diceNum: number, userId: number): number{
+        return game.players.find(user => user.userId === userId).dices.filter(dice => dice.value === diceNum).length
     }
 }

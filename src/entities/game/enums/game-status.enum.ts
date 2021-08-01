@@ -4,9 +4,10 @@ export enum GameStatus {
     BANK_RESULT = 'BANK_RESULT',
     GENERAL_STORMS_RESULT = 'GENERAL_STORMS_RESULT',
     SALOON_RESULT = 'SALOON_RESULT',
-    SHERIF_RESULTe = 'SHERIF_RESULTe',
+    SHERIF_RESULT = 'SHERIF_RESULT',
     PROPERTY_RESULT = 'PROPERTY_RESULT',
     BAD_LUCK_RESULT = 'BAD_LUCK_RESULT',
+    ANY = 'ANY',
 }
 
 export enum GameStatusLabel {
@@ -18,4 +19,6 @@ export enum GameStatusLabel {
     SHERIF_RESULT = "How is the new Sherif?",
     PROPERTY_RESULT = "Property results",
     BAD_LUCK_RESULT = "Choose bad luck",
+    ANY = 'Any moment',
+
 }

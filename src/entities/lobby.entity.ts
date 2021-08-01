@@ -3,6 +3,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, Ma
 import { Message } from "./chat/message.entity";
 import { Game } from "./game/game.entity";
 import { ReadyStatus } from "./lobby/ready-status";
+import { GameEvent } from "./lobby/game-event";
 
 @Entity()
 export class Lobby extends BaseEntity {
@@ -39,5 +40,8 @@ export class Lobby extends BaseEntity {
 
     @Column({type: 'json', nullable: true})
     readyStatus: ReadyStatus[];
+    
+    @Column({type: 'json', nullable: true})
+    events: GameEvent[];
 
 }

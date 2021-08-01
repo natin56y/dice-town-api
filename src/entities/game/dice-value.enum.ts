@@ -5,4 +5,6 @@ export enum DiceValue {
     DICE12 = 12,
     DICE13 = 13,
     DICE14 = 14,
+    BAD_LUCK = 15,
+    ALL = Infinity,
 }
