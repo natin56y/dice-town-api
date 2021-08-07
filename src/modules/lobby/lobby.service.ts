@@ -69,7 +69,7 @@ export class LobbyService extends BaseService<Lobby>{
         return code
     }
 
-    async findOneLobbyPopulate(where) {
+    async findOneLobbyPopulate(where): Promise<Lobby> {
         return await this.getRepository().findOne(
             {
                 relations: ['users', 'messages', 'game'],

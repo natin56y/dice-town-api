@@ -51,21 +51,21 @@ export class GameService extends BaseService<Game>{
     fillGeneralStorms() {
         let generalStorms: GeneralStorms[] = []
 
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_1_POINTS, "Get 1 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_2_POINTS, "Get 2 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_3_POINTS, "Get 3 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_4_POINTS, "Get 4 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_5_POINTS, "Get 5 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.GET_8_POINTS, "Get 8 points", true))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.TWO_SALOON, "Get 8 points", true, GameStatus.SALOON_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.CANCEL_CARD, "Cancel a card played by another player", true, GameStatus.SALOON_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.ONE_MOR_PROPERTY, "Get one more property from hidden stack", true, GameStatus.PROPERTY_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.DOUBLE_NUGGETS, "Get double nuggets", true, GameStatus.NUGGETS_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.OLD_SHERIF_STAY, "Old sherif stays sherif", true, GameStatus.SHERIF_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.HALF_OF_BANK, "Get half of the bank heist", true, GameStatus.BANK_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.DO_BAD_LUCK, "Do bad luck", true, GameStatus.BAD_LUCK_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.DOUBLE_STORE, "Pick store cards twice", true, GameStatus.GENERAL_STORMS_RESULT))
-        generalStorms.push(new GeneralStorms(GeneralStormsAction.STEAL_4_DOLLAR, "Steal 4$ from any player", false))
+        generalStorms.push(new GeneralStorms(1, GeneralStormsAction.GET_1_POINTS, "Get 1 points", true))
+        generalStorms.push(new GeneralStorms(2, GeneralStormsAction.GET_2_POINTS, "Get 2 points", true))
+        generalStorms.push(new GeneralStorms(3, GeneralStormsAction.GET_3_POINTS, "Get 3 points", true))
+        generalStorms.push(new GeneralStorms(4, GeneralStormsAction.GET_4_POINTS, "Get 4 points", true))
+        generalStorms.push(new GeneralStorms(5, GeneralStormsAction.GET_5_POINTS, "Get 5 points", true))
+        generalStorms.push(new GeneralStorms(6, GeneralStormsAction.GET_8_POINTS, "Get 8 points", true))
+        generalStorms.push(new GeneralStorms(7, GeneralStormsAction.TWO_SALOON, "Get 8 points", true, GameStatus.SALOON_RESULT))
+        generalStorms.push(new GeneralStorms(8, GeneralStormsAction.CANCEL_CARD, "Cancel a card played by another player", true, GameStatus.SALOON_RESULT))
+        generalStorms.push(new GeneralStorms(9, GeneralStormsAction.ONE_MOR_PROPERTY, "Get one more property from hidden stack", true, GameStatus.PROPERTY_RESULT))
+        generalStorms.push(new GeneralStorms(10, GeneralStormsAction.DOUBLE_NUGGETS, "Get double nuggets", true, GameStatus.NUGGETS_RESULT))
+        generalStorms.push(new GeneralStorms(11, GeneralStormsAction.OLD_SHERIF_STAY, "Old sherif stays sherif", true, GameStatus.SHERIF_RESULT))
+        generalStorms.push(new GeneralStorms(12, GeneralStormsAction.HALF_OF_BANK, "Get half of the bank heist", true, GameStatus.BANK_RESULT))
+        generalStorms.push(new GeneralStorms(13, GeneralStormsAction.DO_BAD_LUCK, "Do bad luck", true, GameStatus.BAD_LUCK_RESULT))
+        generalStorms.push(new GeneralStorms(14, GeneralStormsAction.DOUBLE_STORE, "Pick store cards twice", true, GameStatus.GENERAL_STORMS_RESULT))
+        generalStorms.push(new GeneralStorms(15, GeneralStormsAction.STEAL_4_DOLLAR, "Steal 4$ from any player", false))
         
         return this.shuffle(generalStorms)
     }
@@ -96,7 +96,7 @@ export class GameService extends BaseService<Game>{
     }
 
     getWinners(value: DiceValue, game: Game){
-        let max = 0
+        let max = 1
         let playerIds: number[] = []
         for (const player of game.players) {
             let playerMax = 0

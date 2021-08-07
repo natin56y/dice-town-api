@@ -7,8 +7,8 @@ export class GeneralStorms extends Card {
     action: GeneralStormsAction
     category: GameStatus;
 
-    constructor(action: GeneralStormsAction, text: string, canKeep: boolean, category: GameStatus = null){
-        super(text, canKeep)
+    constructor(id: number, action: GeneralStormsAction, text: string, canKeep: boolean, category: GameStatus = null){
+        super(id, text, canKeep)
         this.action = action
         this.category = category
     }

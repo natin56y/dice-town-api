@@ -18,6 +18,15 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   
   @WebSocketServer()
   server: Server;
+
+  diceToStr = new Map([
+    [9, "dice9"],
+    [10, "dice10"],
+    [11, "diceStore"],
+    [12, "diceSaloon"],
+    [13, "diceSherif"],
+    [14, "diceAce"]
+  ]); 
   
   private logger: Logger = new Logger("LobbyGateway")
 
@@ -127,20 +136,48 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
       this.server.to(`${body.lobbyId}`).emit('event', new GameEvent('Round results'))
       lobby.events.push(new GameEvent('Round results'))
       
+
       //compute winners of categories
-      game.results.dice9 = new Result(this.gameService.getWinners(DiceValue.DICE9, game), false, "dice9", false, true)
-      game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true, "dice10", false, true)
-      game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true, "diceStore")
-      game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true, "diceSaloon")
-      game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true, "diceSherif", false, true)
-      game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true, "diceAce")
+      for (let i = 9; i < 15; i++) {
+        let winnerIds = this.gameService.getWinners(i, game);
+
+        let isHidden = true 
+        let isSherifResolve = false
+        let isActionDone = false
+        let isRedeemed = false    
+
+        switch(i){
+          case 9:
+            isActionDone = true
+            isHidden = false
+            break;
+          case 10:
+            isActionDone = true
+            break;
+          case 13:
+            isActionDone = true
+            break;
+        }
+        game.results[this.diceToStr.get(i)] = new Result(winnerIds, true, i, isSherifResolve, !winnerIds.length ? true : isActionDone, !winnerIds.length ? true : isRedeemed)
+        
+      }
+
+      for (let i = 9; i < 15; i++) {
+        if(this.gameService.getWinners(i, game).length !== 0){
+          game.results[this.diceToStr.get(i)].isHidden = false;
+          break;
+        }
+      }
+      // game.results.dice10 = new Result(this.gameService.getWinners(DiceValue.DICE10, game), true, DiceValue.DICE10, false, true)
+      // game.results.diceStore = new Result(this.gameService.getWinners(DiceValue.DICE11, game), true, DiceValue.DICE11)
+      // game.results.diceSaloon = new Result(this.gameService.getWinners(DiceValue.DICE12, game), true, DiceValue.DICE12)
+      // game.results.diceSherif = new Result(this.gameService.getWinners(DiceValue.DICE13, game), true, DiceValue.DICE13, false, true)
+      // game.results.diceAce = new Result(this.gameService.getWinners(DiceValue.DICE14, game), true, DiceValue.DICE14)
 
       game.players.forEach( player => {
         player.dices.sort((a,b) => {
-          if(a.value > b.value)
-            return 1
-          if(a.value < b.value)
-            return -1
+          if(a.value > b.value) return 1
+          if(a.value < b.value) return -1
           return 1
         })
       })
@@ -150,7 +187,6 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
     
     await this.gameService.save(game)
     await this.lobbyService.save(lobby)
-    
   }
 
   @SubscribeMessage('chooseWinner')
@@ -171,51 +207,63 @@ export class LobbyGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
   @SubscribeMessage('redeemResult')
   async redeemResult(client: Socket, body: {lobbyId: number, gameId: number, result: Result}){
     
-    let game = await this.gameService.findOneById(body.gameId)
+    const lobby = await this.lobbyService.findOneLobbyPopulate({id: body.lobbyId})
 
-    game.results[body.result.dice].isRedeemed = true
+    lobby.game.results[this.diceToStr.get(body.result.dice)].isRedeemed = true
 
     switch(body.result.dice){
-      case "dice9":
-        const wonNuggets: number = this.lobbyService.countPlayerDice(game, 9, body.result.ids[0])
-        game.players[game.players.findIndex(p => p.userId === body.result.ids[0])].nuggets += wonNuggets
-        game.nuggets -= wonNuggets
-        game.results.dice10.isHidden = false
-        game.status = GameStatus.BANK_RESULT
-        break;
-      case "dice10":
-        game.players[game.players.findIndex(p => p.userId === body.result.ids[0])].dollar += game.dollar
-        game.dollar = game.income
-        game.income = 0
-        game.results.diceStore.isHidden = false
-        game.status = GameStatus.GENERAL_STORMS_RESULT
+      case 9:
+        const wonNuggets: number = this.lobbyService.countPlayerDice(lobby.game, 9, body.result.ids[0])
+        lobby.game.players[lobby.game.players.findIndex(p => p.userId === body.result.ids[0])].nuggets += wonNuggets
+        lobby.game.nuggets -= wonNuggets
+        lobby.game.results.dice10.isHidden = false
+        lobby.game.status = GameStatus.BANK_RESULT
+
+        lobby.events.push(new GameEvent(`${lobby.users.find(u => u.id === body.result.ids[0]).name} won ${wonNuggets} nuggets`))
+        this.server.to(body.lobbyId.toString()).emit('event', new GameEvent(`${lobby.users.find(u => u.id === body.result.ids[0]).name} won ${wonNuggets} nugget${wonNuggets > 1 ? "s" : ""}`))
 
         break;
-      case "diceStore":
+      case 10:
+        let wonDollars = lobby.game.dollar
+        lobby.game.players[lobby.game.players.findIndex(p => p.userId === body.result.ids[0])].dollar += lobby.game.dollar
+        lobby.game.dollar = lobby.game.income
+        lobby.game.income = 0
+        lobby.game.results.diceStore.isHidden = false
+        lobby.game.status = GameStatus.GENERAL_STORMS_RESULT
 
-        game.results.diceSaloon.isHidden = false
-        game.status = GameStatus.SALOON_RESULT
-
-        break;
-      case "diceSaloon":
-
-        game.results.diceSherif.isHidden = false
-        game.status = GameStatus.SHERIF_RESULT
-
-        break;
-      case "diceSherif":
-
-        game.status = GameStatus.PROPERTY_RESULT
+        lobby.events.push(new GameEvent(`${lobby.users.find(u => u.id === body.result.ids[0]).name} won ${wonDollars}$`))
+        this.server.to(body.lobbyId.toString()).emit('event', new GameEvent(`${lobby.users.find(u => u.id === body.result.ids[0]).name} won ${wonDollars}$`))
 
         break;
-      case "diceAce":
+      case 11:
+
+        lobby.game.results.diceSaloon.isHidden = false
+        lobby.game.status = GameStatus.SALOON_RESULT
+
+        break;
+      case 12:
+
+        lobby.game.results.diceSherif.isHidden = false
+        lobby.game.status = GameStatus.SHERIF_RESULT
+
+        break;
+      case 13:
+
+        lobby.game.status = GameStatus.PROPERTY_RESULT
+
+        break;
+      case 14:
+
+        lobby.game.status = GameStatus.PROPERTY_RESULT
 
         break;
     }
 
-    this.server.to(body.lobbyId.toString()).emit('updateResults', game.results)
+
+    this.server.to(body.lobbyId.toString()).emit('updateResults', lobby.game.results)
     
-    game = await this.gameService.save(game)
+    await this.lobbyService.save(lobby)
+    await this.gameService.save(lobby.game)
 
   }
 
